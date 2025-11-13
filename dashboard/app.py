@@ -110,12 +110,12 @@ def create_campaign_chart(campaign_df, metric, top_n=10):
 def create_platform_radar(platform_df):
     """Create radar chart for platform comparison"""
     indicators = [
-        {"name": "CTR", "max": platform_df["ctr"].max() * 1.2},
+        {"name": "CTR %", "max": platform_df["ctr"].max() * 1.2},
         {"name": "ROAS", "max": platform_df["roas"].max() * 1.2},
-        {"name": "CPC", "max": platform_df["cpc"].max() * 1.2},
+        {"name": "CPC $", "max": platform_df["cpc"].max() * 1.2},
         {"name": "Revenue", "max": platform_df["revenue"].max() * 1.2},
         {"name": "Clicks", "max": platform_df["clicks"].max() * 1.2},
-        {"name": "Impressions", "max": platform_df["impressions"].max() * 1.2}
+        {"name": "Impr.", "max": platform_df["impressions"].max() * 1.2}
     ]
 
     series = []
@@ -147,8 +147,20 @@ def create_platform_radar(platform_df):
         "radar": {
             "indicator": indicators,
             "shape": "circle",
-            "splitNumber": 5,
-            "axisName": {"color": "#5f6368", "fontSize": 12}
+            "splitNumber": 4,
+            "axisName": {
+                "color": "#202124",
+                "fontSize": 14,
+                "fontWeight": "bold"
+            },
+            "axisNameGap": 15,
+            "splitArea": {
+                "show": True,
+                "areaStyle": {"color": ["rgba(250,250,250,0.1)", "rgba(200,200,200,0.1)"]}
+            },
+            "splitLine": {
+                "lineStyle": {"color": "rgba(100,100,100,0.3)"}
+            }
         },
         "series": series,
         "color": ["#4285F4", "#EA4335", "#FBBC05", "#34A853"]
