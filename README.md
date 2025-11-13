@@ -10,6 +10,19 @@ A professional marketing analytics dashboard with real-time KPIs, campaign perfo
 
 ![Marketing Analytics Dashboard](https://raw.githubusercontent.com/anix-lynch/marketing-analytics-etl/main/marketing_etl.gif)
 
+## 🛠️ **Tech Stack & Skills Demonstrated**
+
+### **Primary Skills (Strong Proficiency)**
+- **Python Ecosystem**: Pandas, Streamlit, Data Processing
+- **Data Engineering**: ETL pipelines, API integration
+- **Dashboard Development**: Interactive web applications
+- **Cloud Deployment**: Streamlit Cloud, automated CI/CD
+
+### **BI Tools (Limited Experience - GUI-Heavy)**
+- **Tableau**: Conceptual knowledge, data prep for Tableau Public
+- **Power BI**: DAX formula understanding, data modeling concepts
+- **Note**: GUI-based tools requiring manual dashboard building
+
 **🎯 What This Portfolio Demonstrates:**
 - Advanced marketing measurement and attribution
 - Data engineering for marketing analytics
