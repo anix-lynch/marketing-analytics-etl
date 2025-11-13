@@ -456,7 +456,10 @@ def main():
 
         scatter_options = {
             "title": {"text": "Cost vs Revenue by Platform", "left": "center"},
-            "tooltip": {"trigger": "item"},
+            "tooltip": {
+                "trigger": "item",
+                "formatter": "{a}<br/>{b}: (${c[0]}, ${c[1]})<br/>Clicks: {c[2]}"
+            },
             "legend": {"data": platform_df["platform"].str.title().tolist()},
             "xAxis": {"name": "Cost ($)", "nameLocation": "middle", "nameGap": 30},
             "yAxis": {"name": "Revenue ($)", "nameLocation": "middle", "nameGap": 40},
@@ -464,7 +467,7 @@ def main():
                 "name": "Platforms",
                 "data": platforms_data,
                 "type": "scatter",
-                "symbolSize": lambda val: val[2] / 1000,  # Size based on clicks
+                "symbolSize": 20,  # Fixed size for simplicity
                 "emphasis": {"focus": "series"}
             }],
             "color": ["#4285F4", "#EA4335", "#FBBC05", "#34A853"]
