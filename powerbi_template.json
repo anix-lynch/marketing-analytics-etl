@@ -1,0 +1,23 @@
+{
+  "name": "Marketing Analytics Template",
+  "description": "Automated marketing dashboard template",
+  "version": "1.0",
+  "dataset": {
+    "name": "Marketing Data",
+    "description": "Cross-platform marketing performance data"
+  },
+  "reports": [
+    {
+      "name": "Executive Summary",
+      "description": "Key marketing KPIs and trends"
+    },
+    {
+      "name": "Campaign Analysis",
+      "description": "Detailed campaign performance breakdown"
+    },
+    {
+      "name": "Platform Intelligence",
+      "description": "Platform comparison and attribution"
+    }
+  ]
+}
