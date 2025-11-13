@@ -356,8 +356,8 @@ def main():
     col1, col2, col3, col4 = st.columns(4)
     col5, col6, col7, col8 = st.columns(4)
 
-        # First row of KPIs
-        for i, kpi in enumerate(kpis[:4]):
+    # First row of KPIs
+    for i, kpi in enumerate(kpis[:4]):
             with [col1, col2, col3, col4][i]:
                 st.markdown(f"""
                 <div style="
@@ -379,8 +379,8 @@ def main():
                 </div>
                 """, unsafe_allow_html=True)
 
-        # Second row of KPIs
-        for i, kpi in enumerate(kpis[4:]):
+    # Second row of KPIs
+    for i, kpi in enumerate(kpis[4:]):
             with [col5, col6, col7, col8][i]:
                 st.markdown(f"""
                 <div style="
@@ -402,16 +402,8 @@ def main():
                 </div>
                 """, unsafe_allow_html=True)
     
-    # Interactive Dashboard Layout
+    # Interactive Analytics Dashboard
     st.subheader("📈 Interactive Analytics Dashboard")
-
-    # Dashboard layout configuration
-    layout = [
-        dashboard.Item("time_series", 0, 0, 8, 4),
-        dashboard.Item("campaign_performance", 8, 0, 4, 4),
-        dashboard.Item("platform_radar", 0, 4, 6, 4),
-        dashboard.Item("platform_comparison", 6, 4, 6, 4),
-    ]
 
     # Prepare data for charts
     daily_df = filtered_df.groupby(["date", "platform"]).agg({
