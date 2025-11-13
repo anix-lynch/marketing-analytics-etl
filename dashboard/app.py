@@ -19,10 +19,55 @@ import duckdb
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
+def generate_demo_data() -> pd.DataFrame:
+    """Generate demo data inline for Streamlit Cloud"""
+    import numpy as np
+    from datetime import datetime, timedelta
+    
+    np.random.seed(42)
+    
+    # Generate 30 days of data
+    dates = pd.date_range(end=datetime.now(), periods=30, freq='D')
+    
+    campaigns = [
+        "Margarita_Summer", "Mojito_Refresh", "OldFashioned_Classic",
+        "Cosmopolitan_Glam", "PinaColada_Tropical", "Manhattan_Premium",
+        "Daiquiri_Citrus", "Negroni_Bitter", "Martini_Elegance", "WhiteRussian_Smooth"
+    ]
+    
+    platforms = ["google_ads", "facebook_ads"]
+    
+    data = []
+    for date in dates:
+        for campaign in campaigns:
+            for platform in platforms:
+                impressions = np.random.randint(5000, 50000)
+                clicks = int(impressions * np.random.uniform(0.01, 0.05))
+                cost = clicks * np.random.uniform(0.5, 2.5)
+                conversions = int(clicks * np.random.uniform(0.02, 0.08))
+                revenue = conversions * np.random.uniform(20, 100)
+                
+                data.append({
+                    "date": date,
+                    "campaign_name": campaign,
+                    "platform": platform,
+                    "impressions": impressions,
+                    "clicks": clicks,
+                    "cost": round(cost, 2),
+                    "conversions": conversions,
+                    "revenue": round(revenue, 2),
+                    "ctr": round((clicks / impressions) * 100, 2),
+                    "cpc": round(cost / clicks if clicks > 0 else 0, 2),
+                    "roas": round(revenue / cost if cost > 0 else 0, 2)
+                })
+    
+    return pd.DataFrame(data)
+
+
 @st.cache_data
 def load_data(db_path: str) -> pd.DataFrame:
     """
-    Load data from DuckDB
+    Load data from DuckDB or generate demo data
     
     Args:
         db_path: Path to DuckDB file
@@ -31,17 +76,9 @@ def load_data(db_path: str) -> pd.DataFrame:
         DataFrame with ads data
     """
     if not os.path.exists(db_path):
-        st.warning("⚠️ Database not found! Running demo data generation...")
-        # Run the pipeline to generate demo data
-        import subprocess
-        pipeline_script = os.path.join(os.path.dirname(__file__), "..", "run_pipeline.sh")
-        if os.path.exists(pipeline_script):
-            subprocess.run(["bash", pipeline_script], check=True)
-            st.success("✅ Demo data generated! Refresh to view dashboard.")
-            st.stop()
-        else:
-            st.error(f"Database not found at {db_path}. Please run the ETL pipeline first: `./run_pipeline.sh`")
-            st.stop()
+        st.info("📊 No database found - using demo data for Streamlit Cloud deployment")
+        df = generate_demo_data()
+        return df
     
     conn = duckdb.connect(db_path)
     df = conn.execute("SELECT * FROM ads_analytics").df()
