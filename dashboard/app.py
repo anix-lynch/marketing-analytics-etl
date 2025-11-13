@@ -313,26 +313,17 @@ def generate_demo_data() -> pd.DataFrame:
 @st.cache_data
 def load_data(db_path: str) -> pd.DataFrame:
     """
-    Load data from DuckDB or generate demo data
-    
+    Generate fresh demo data for beverage startup analytics
+
     Args:
-        db_path: Path to DuckDB file
-        
+        db_path: Path to DuckDB file (ignored for demo)
+
     Returns:
-        DataFrame with ads data
+        DataFrame with beverage startup demo data
     """
-    if not os.path.exists(db_path):
-        st.info("📊 No database found - using demo data for Streamlit Cloud deployment")
-        df = generate_demo_data()
-        return df
-    
-    conn = duckdb.connect(db_path)
-    df = conn.execute("SELECT * FROM ads_analytics").df()
-    conn.close()
-    
-    # Ensure date is datetime
-    df["date"] = pd.to_datetime(df["date"])
-    
+    # Always generate fresh demo data for this beverage startup dashboard
+    st.info("🥤 Generating fresh beverage startup demo data for VC evaluation")
+    df = generate_demo_data()
     return df
 
 
