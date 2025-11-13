@@ -31,8 +31,17 @@ def load_data(db_path: str) -> pd.DataFrame:
         DataFrame with ads data
     """
     if not os.path.exists(db_path):
-        st.error(f"Database not found at {db_path}. Please run the ETL pipeline first.")
-        st.stop()
+        st.warning("⚠️ Database not found! Running demo data generation...")
+        # Run the pipeline to generate demo data
+        import subprocess
+        pipeline_script = os.path.join(os.path.dirname(__file__), "..", "run_pipeline.sh")
+        if os.path.exists(pipeline_script):
+            subprocess.run(["bash", pipeline_script], check=True)
+            st.success("✅ Demo data generated! Refresh to view dashboard.")
+            st.stop()
+        else:
+            st.error(f"Database not found at {db_path}. Please run the ETL pipeline first: `./run_pipeline.sh`")
+            st.stop()
     
     conn = duckdb.connect(db_path)
     df = conn.execute("SELECT * FROM ads_analytics").df()
