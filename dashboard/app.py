@@ -23,11 +23,11 @@ def generate_demo_data() -> pd.DataFrame:
     """Generate demo data inline for Streamlit Cloud"""
     import numpy as np
     from datetime import datetime, timedelta
-    
+
     np.random.seed(42)
-    
-    # Generate 30 days of data
-    dates = pd.date_range(end=datetime.now(), periods=30, freq='D')
+
+    # Generate 60 days of data for better date range
+    dates = pd.date_range(end=datetime.now(), periods=60, freq='D')
     
     campaigns = [
         "Margarita_Summer", "Mojito_Refresh", "OldFashioned_Classic",
@@ -48,7 +48,7 @@ def generate_demo_data() -> pd.DataFrame:
                 revenue = conversions * np.random.uniform(20, 100)
                 
                 data.append({
-                    "date": date,
+                    "date": date.to_pydatetime(),
                     "campaign_name": campaign,
                     "platform": platform,
                     "impressions": impressions,
@@ -61,7 +61,9 @@ def generate_demo_data() -> pd.DataFrame:
                     "roas": round(revenue / cost if cost > 0 else 0, 2)
                 })
     
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    df["date"] = pd.to_datetime(df["date"])
+    return df
 
 
 @st.cache_data
@@ -113,15 +115,30 @@ def main():
     st.sidebar.header("🔍 Filters")
     
     # Date range filter
-    min_date = df["date"].min().date()
-    max_date = df["date"].max().date()
-    
-    date_range = st.sidebar.date_input(
-        "Date Range",
-        value=(max_date - timedelta(days=30), max_date),
-        min_value=min_date,
-        max_value=max_date
-    )
+    try:
+        min_date = df["date"].min().date()
+        max_date = df["date"].max().date()
+
+        # Ensure min_date is before max_date
+        if min_date >= max_date:
+            max_date = min_date + timedelta(days=1)
+
+        # Default to last 30 days if possible
+        default_start = max(min_date, max_date - timedelta(days=30))
+
+        date_range = st.sidebar.date_input(
+            "Date Range",
+            value=(default_start, max_date),
+            min_value=min_date,
+            max_value=max_date
+        )
+    except Exception as e:
+        st.error(f"Date filter error: {e}")
+        st.write("Debug info:")
+        st.write(f"df shape: {df.shape}")
+        st.write(f"date column type: {df['date'].dtype}")
+        st.write(f"date sample: {df['date'].head()}")
+        st.stop()
     
     if isinstance(date_range, tuple) and len(date_range) == 2:
         start_date, end_date = date_range
