@@ -12,7 +12,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-from streamlit_elements import elements, mui, html, dashboard, nivo
 from streamlit_echarts import st_echarts
 
 
@@ -242,29 +241,28 @@ def main():
     )
     
     # Google-style header
-    with elements("header"):
-        mui.Box(
-            mui.Typography(
-                "🎯 Marketing Analytics Dashboard",
-                sx={
-                    "fontSize": "2.5rem",
-                    "fontWeight": "bold",
-                    "color": "#202124",
-                    "textAlign": "center",
-                    "mb": 1
-                }
-            ),
-            mui.Typography(
-                "Real-time insights into your advertising performance across platforms",
-                sx={
-                    "fontSize": "1.1rem",
-                    "color": "#5f6368",
-                    "textAlign": "center",
-                    "mb": 3
-                }
-            ),
-            sx={"py": 4, "px": 2}
-        )
+    st.markdown("""
+    <div style="
+        text-align: center;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #4285F4 0%, #34A853 100%);
+        border-radius: 12px;
+        margin-bottom: 30px;
+        color: white;
+    ">
+        <h1 style="
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        ">🎯 Marketing Analytics Dashboard</h1>
+        <p style="
+            font-size: 1.2rem;
+            margin: 0;
+            opacity: 0.9;
+        ">Real-time insights into your advertising performance across platforms</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Load data
     db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), "..", "db", "ads_analytics.duckdb"))
@@ -274,61 +272,48 @@ def main():
         st.warning("No data available. Please run the ETL pipeline first.")
         st.stop()
     
-    # Filters in Material UI
-    with elements("filters"):
-        with mui.Paper(
-            elevation=2,
-            sx={
-                "p": 3,
-                "mb": 3,
-                "borderRadius": 2,
-                "backgroundColor": "#f8f9fa"
-            }
-        ):
-            mui.Typography(
-                "Filters & Controls",
-                sx={"fontWeight": "bold", "mb": 2, "color": "#202124"}
+    # Filters section
+    st.markdown("### 🔍 Filters & Controls")
+
+    with st.container():
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            try:
+                min_date = df["date"].min().date()
+                max_date = df["date"].max().date()
+                if min_date >= max_date:
+                    max_date = min_date + timedelta(days=1)
+                default_start = max(min_date, max_date - timedelta(days=30))
+
+                date_range = st.date_input(
+                    "Date Range",
+                    value=(default_start, max_date),
+                    min_value=min_date,
+                    max_value=max_date,
+                    key="date_range"
+                )
+            except Exception as e:
+                st.error(f"Date filter error: {e}")
+                date_range = (df["date"].min().date(), df["date"].max().date())
+
+        with col2:
+            platforms = df["platform"].unique()
+            selected_platforms = st.multiselect(
+                "Platforms",
+                options=platforms,
+                default=platforms.tolist(),
+                key="platforms"
             )
 
-            # Date range filter (keeping Streamlit for simplicity)
-            col1, col2, col3 = st.columns(3)
-
-            with col1:
-                try:
-                    min_date = df["date"].min().date()
-                    max_date = df["date"].max().date()
-                    if min_date >= max_date:
-                        max_date = min_date + timedelta(days=1)
-                    default_start = max(min_date, max_date - timedelta(days=30))
-
-                    date_range = st.date_input(
-                        "Date Range",
-                        value=(default_start, max_date),
-                        min_value=min_date,
-                        max_value=max_date,
-                        key="date_range"
-                    )
-                except Exception as e:
-                    st.error(f"Date filter error: {e}")
-                    date_range = (df["date"].min().date(), df["date"].max().date())
-
-            with col2:
-                platforms = df["platform"].unique()
-                selected_platforms = st.multiselect(
-                    "Platforms",
-                    options=platforms,
-                    default=platforms.tolist(),
-                    key="platforms"
-                )
-
-            with col3:
-                campaigns = df["campaign_name"].unique()
-                selected_campaigns = st.multiselect(
-                    "Campaigns (Top 20)",
-                    options=campaigns,
-                    default=sorted(campaigns)[:20],
-                    key="campaigns"
-                )
+        with col3:
+            campaigns = df["campaign_name"].unique()
+            selected_campaigns = st.multiselect(
+                "Campaigns (Top 20)",
+                options=campaigns,
+                default=sorted(campaigns)[:20],
+                key="campaigns"
+            )
 
     # Apply filters
     if isinstance(date_range, tuple) and len(date_range) == 2:
@@ -367,36 +352,55 @@ def main():
         {"title": "Conversions", "value": f"{total_conversions:,.0f}", "change": "↗️ +20%", "icon": "✅"}
     ]
 
-    with elements("kpi_cards"):
-        mui.Grid(container=True, spacing=2):
-            for kpi in kpis:
-                with mui.Grid(item=True, xs=12, sm=6, md=3):
-                    mui.Card(
-                        mui.CardContent(
-                            mui.Box(
-                                mui.Typography(kpi["icon"], sx={"fontSize": "2rem", "mb": 1}),
-                                mui.Typography(
-                                    kpi["title"],
-                                    sx={"fontSize": "0.875rem", "color": "#5f6368", "mb": 0.5}
-                                ),
-                                mui.Typography(
-                                    kpi["value"],
-                                    sx={"fontSize": "1.5rem", "fontWeight": "bold", "color": "#202124"}
-                                ),
-                                mui.Typography(
-                                    kpi["change"],
-                                    sx={"fontSize": "0.75rem", "color": "#34A853"}
-                                ),
-                                sx={"textAlign": "center", "py": 2}
-                            )
-                        ),
-                        sx={
-                            "height": "100%",
-                            "borderRadius": 2,
-                            "boxShadow": "0 2px 8px rgba(0,0,0,0.1)",
-                            "&:hover": {"boxShadow": "0 4px 16px rgba(0,0,0,0.15)"}
-                        }
-                    )
+    # Use simple columns layout for KPI cards
+    col1, col2, col3, col4 = st.columns(4)
+    col5, col6, col7, col8 = st.columns(4)
+
+        # First row of KPIs
+        for i, kpi in enumerate(kpis[:4]):
+            with [col1, col2, col3, col4][i]:
+                st.markdown(f"""
+                <div style="
+                    background-color: white;
+                    border-radius: 8px;
+                    padding: 20px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    text-align: center;
+                    height: 120px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                ">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">{kpi["icon"]}</div>
+                    <div style="font-size: 0.875rem; color: #5f6368; margin-bottom: 4px;">{kpi["title"]}</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #202124;">{kpi["value"]}</div>
+                    <div style="font-size: 0.75rem; color: #34A853;">{kpi["change"]}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        # Second row of KPIs
+        for i, kpi in enumerate(kpis[4:]):
+            with [col5, col6, col7, col8][i]:
+                st.markdown(f"""
+                <div style="
+                    background-color: white;
+                    border-radius: 8px;
+                    padding: 20px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    text-align: center;
+                    height: 120px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                ">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">{kpi["icon"]}</div>
+                    <div style="font-size: 0.875rem; color: #5f6368; margin-bottom: 4px;">{kpi["title"]}</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #202124;">{kpi["value"]}</div>
+                    <div style="font-size: 0.75rem; color: #34A853;">{kpi["change"]}</div>
+                </div>
+                """, unsafe_allow_html=True)
     
     # Interactive Dashboard Layout
     st.subheader("📈 Interactive Analytics Dashboard")
@@ -426,52 +430,54 @@ def main():
         "roas": "mean", "cpc": "mean"
     }).reset_index()
 
-    with elements("dashboard"):
-        with dashboard.Grid(layout, draggableHandle=".draggable"):
-            with mui.Paper(key="time_series", sx={"p": 2, "borderRadius": 2}):
-                mui.Typography("📅 Time Series Trends", sx={"fontWeight": "bold", "mb": 2})
-                metric_options = ["cost", "revenue", "clicks", "conversions", "impressions", "ctr", "roas", "cpc"]
-                selected_metric = st.selectbox("Metric", metric_options, key="time_metric")
-                st_echarts(create_time_series_chart(daily_df, selected_metric), height=300)
+    # Use simpler column layout for better compatibility
+    col1, col2 = st.columns(2)
 
-            with mui.Paper(key="campaign_performance", sx={"p": 2, "borderRadius": 2}):
-                mui.Typography("🎯 Campaign Performance", sx={"fontWeight": "bold", "mb": 2})
-                sort_options = ["cost", "revenue", "clicks", "conversions"]
-                selected_sort = st.selectbox("Sort by", sort_options, key="campaign_sort")
-                campaign_df_sorted = campaign_df.sort_values(selected_sort, ascending=False)
-                st_echarts(create_campaign_chart(campaign_df_sorted, selected_sort, 8), height=300)
+    with col1:
+        # Time Series Chart
+        st.markdown("**📅 Time Series Trends**")
+        metric_options = ["cost", "revenue", "clicks", "conversions", "impressions", "ctr", "roas", "cpc"]
+        selected_metric = st.selectbox("Metric", metric_options, key="time_metric")
+        st_echarts(create_time_series_chart(daily_df, selected_metric), height=300)
 
-            with mui.Paper(key="platform_radar", sx={"p": 2, "borderRadius": 2}):
-                mui.Typography("🎪 Platform Performance Radar", sx={"fontWeight": "bold", "mb": 2})
-                st_echarts(create_platform_radar(platform_df), height=300)
+        # Platform Radar Chart
+        st.markdown("**🎪 Platform Performance Radar**")
+        st_echarts(create_platform_radar(platform_df), height=300)
 
-            with mui.Paper(key="platform_comparison", sx={"p": 2, "borderRadius": 2}):
-                mui.Typography("⚖️ Platform Comparison Matrix", sx={"fontWeight": "bold", "mb": 2})
+    with col2:
+        # Campaign Performance Chart
+        st.markdown("**🎯 Campaign Performance**")
+        sort_options = ["cost", "revenue", "clicks", "conversions"]
+        selected_sort = st.selectbox("Sort by", sort_options, key="campaign_sort")
+        campaign_df_sorted = campaign_df.sort_values(selected_sort, ascending=False)
+        st_echarts(create_campaign_chart(campaign_df_sorted, selected_sort, 8), height=300)
 
-                # Platform comparison scatter plot with ECharts
-                platforms_data = []
-                for _, row in platform_df.iterrows():
-                    platforms_data.append({
-                        "name": row["platform"].title(),
-                        "value": [row["cost"], row["revenue"], row["clicks"]]
-                    })
+        # Platform Comparison Scatter Plot
+        st.markdown("**⚖️ Platform Comparison Matrix**")
 
-                scatter_options = {
-                    "title": {"text": "Cost vs Revenue by Platform", "left": "center"},
-                    "tooltip": {"trigger": "item"},
-                    "legend": {"data": platform_df["platform"].str.title().tolist()},
-                    "xAxis": {"name": "Cost ($)", "nameLocation": "middle", "nameGap": 30},
-                    "yAxis": {"name": "Revenue ($)", "nameLocation": "middle", "nameGap": 40},
-                    "series": [{
-                        "name": "Platforms",
-                        "data": platforms_data,
-                        "type": "scatter",
-                        "symbolSize": lambda val: val[2] / 1000,  # Size based on clicks
-                        "emphasis": {"focus": "series"}
-                    }],
-                    "color": ["#4285F4", "#EA4335", "#FBBC05", "#34A853"]
-                }
-                st_echarts(scatter_options, height=300)
+        platforms_data = []
+        for _, row in platform_df.iterrows():
+            platforms_data.append({
+                "name": row["platform"].title(),
+                "value": [row["cost"], row["revenue"], row["clicks"]]
+            })
+
+        scatter_options = {
+            "title": {"text": "Cost vs Revenue by Platform", "left": "center"},
+            "tooltip": {"trigger": "item"},
+            "legend": {"data": platform_df["platform"].str.title().tolist()},
+            "xAxis": {"name": "Cost ($)", "nameLocation": "middle", "nameGap": 30},
+            "yAxis": {"name": "Revenue ($)", "nameLocation": "middle", "nameGap": 40},
+            "series": [{
+                "name": "Platforms",
+                "data": platforms_data,
+                "type": "scatter",
+                "symbolSize": lambda val: val[2] / 1000,  # Size based on clicks
+                "emphasis": {"focus": "series"}
+            }],
+            "color": ["#4285F4", "#EA4335", "#FBBC05", "#34A853"]
+        }
+        st_echarts(scatter_options, height=300)
 
     # Footer
     st.markdown("---")
