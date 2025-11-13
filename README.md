@@ -4,6 +4,10 @@
 
 A professional marketing analytics dashboard with real-time KPIs, campaign performance tracking, and cross-platform attribution insights. Built with modern data visualization techniques for marketing professionals and executives.
 
+## 🚀 Live Demo
+
+**[🔗 View Live Dashboard](https://marketing-analytics-etl.streamlit.app/)**
+
 ![Marketing Analytics Dashboard](https://raw.githubusercontent.com/anix-lynch/marketing-analytics-etl/main/marketing_etl.gif)
 
 **🎯 What This Portfolio Demonstrates:**
