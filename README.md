@@ -1,8 +1,10 @@
-# 📊 Marketing Analytics Pro Portfolio - Enterprise ETL Pipeline & BI Dashboard
+# 📊 Marketing Analytics Visualization
 
-**Demonstrating Advanced Marketing Analytics Skills**
+**Interactive Dashboard for Cross-Platform Marketing Performance**
 
-A production-ready ETL pipeline and interactive business intelligence dashboard showcasing enterprise-grade marketing analytics capabilities. Built for marketing professionals who need to measure, analyze, and optimize cross-platform advertising performance.
+A professional marketing analytics dashboard with real-time KPIs, campaign performance tracking, and cross-platform attribution insights. Built with modern data visualization techniques for marketing professionals and executives.
+
+![Marketing Analytics Dashboard](https://raw.githubusercontent.com/anix-lynch/marketing-analytics-etl/main/marketing_etl.gif)
 
 **🎯 What This Portfolio Demonstrates:**
 - Advanced marketing measurement and attribution
